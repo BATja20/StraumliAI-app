@@ -106,4 +106,4 @@ class DockerManager:
             return success
         except APIError as e:
             logging.error(f"Failed to ping from {container.id} to {target_name}: {e}")
-            raise
+            return False
