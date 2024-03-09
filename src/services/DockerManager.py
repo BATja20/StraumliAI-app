@@ -1,7 +1,6 @@
 import logging
 import docker
 import time
-import os
 from docker.models.containers import Container
 from docker.models.networks import Network
 from docker.errors import APIError
@@ -19,12 +18,11 @@ class DockerManager:
             logging.error(f"Failed to create network {network_name}: {e}")
             raise
     
-    def remove_network(self, network: Network) -> None:
+    def remove_network(self, network: Network):
         try:
             network.remove()
         except Exception as e:
             logging.error(f"Failed to remove network {network.id}: {e}")
-            raise
         
     def run_container(self, name: str, network_name: str, network: Network, host_name: str = None) -> Container:
         try:
@@ -40,11 +38,10 @@ class DockerManager:
             return container
         except Exception as e:
             logging.error(f"Failed to run container {name}: {e}")
-            raise
+            return None
     
     def remove_all_containers_from_network(self, network_id: str):
         network = self.client.networks.get(network_id = network_id)
-        logging.info(f"Containers to remove {network.containers}")
         for container in network.containers:
             container.stop()
             self.remove_container(container = container)
@@ -61,7 +58,6 @@ class DockerManager:
         end_time = time.time() + timeout
         while time.time() < end_time:
             if self.network_has_no_active_endpoints(network = network):
-                logging.info(f"Network {network.id} has no active endpoints")
                 return True
             logging.info("Waiting for network to clear active endpoints...")
             time.sleep(interval)
@@ -75,11 +71,12 @@ class DockerManager:
         else:
             logging.error(f"Network {network.id} could not be removed due to active endpoints or it timed out while trying to check for active endpoints")
   
-    def remove_container(self, container: Container) -> None:
-        if container is None:
-            logging.warning("Attempted to remove a None container!!!")
-            return
-        container.remove(force = True)
+    def remove_container(self, container: Container):
+        try:
+            container.remove(force = True)
+            logging.info(f"Successfully removed container: {container.id}")
+        except APIError as e:
+            logging.error(f"Failed to remove container {container.id}: {e}")
         
     def test_ping(self, from_container: Container, target_name: str) -> bool:
         container = self.client.containers.get(from_container.id)
@@ -89,8 +86,8 @@ class DockerManager:
                 return False
             result = container.exec_run(f"ping -c 3 {target_name}")
             success = "0% packet loss" in result.output.decode()
-            logging.info(f"Ping from {container.id} to {target_name} {'succeeded' if success else 'failed'}")
+            logging.info(f"Ping from {container.name} to {target_name} {'succeeded' if success else 'failed'}")
             return success
         except APIError as e:
-            logging.error(f"Failed to ping from {container.id} to {target_name}: {e.explanation}")
+            logging.error(f"Failed to ping from {container.id} to {target_name}: {e}")
             raise
