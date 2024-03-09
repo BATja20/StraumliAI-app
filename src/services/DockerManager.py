@@ -51,7 +51,6 @@ class DockerManager:
         for container in network.containers:
             container.stop()
             self.remove_container(container=container)
-        logging.info(f"All containers removed from {network.id}")
 
     def network_has_no_active_endpoints(self, network: Network) -> bool:
         try:
@@ -80,6 +79,7 @@ class DockerManager:
         network = self.client.networks.get(network_id=network_id)
         if self.wait_for_no_active_endpoints(network=network):
             self.remove_network(network=network)
+            logging.info(f"Successfully removed network: {network_id}")
         else:
             logging.error(
                 f"Network {network.id} could not be removed due to active endpoints or it timed out while trying to check for active endpoints"
