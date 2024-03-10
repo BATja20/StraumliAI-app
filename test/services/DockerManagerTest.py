@@ -5,7 +5,6 @@ from docker.errors import APIError
 
 @pytest.fixture
 def docker_manager():
-    # Setup code here if needed
     manager = DockerManager()
     yield manager
 
