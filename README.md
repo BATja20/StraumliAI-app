@@ -1,6 +1,7 @@
 # Docker Network Provisioning Tool
 
 ## Brief
+Authored by: George-Andrei Luca
 
 This project implements an initial version of a Python tool designed for programmatically provisioning Docker containers on virtual networks. It automates the setup, interaction, and teardown of Docker containers connected within a custom network.
 
