@@ -27,14 +27,14 @@ The tool fulfills the following core functionalities:
 
 ## Usage
 
-This Python tool automates the provisioning of Docker containers within a custom network for network-based tests or experiments. Here's how to get started:
+This Python tool automates the provisioning of Docker containers within a custom network. Here's how to get started:
 
 ### Basic Usage
 
 To run the tool and provision your Docker environment, use the following command structure:
 
 ```bash
-python path/to/docker_provisioning_tool.py --targets <number_of_targets>
+python path/to/src/CLI.py --targets <number_of_targets>
 ```
 <number_of_targets> has to be greater than 0
 
